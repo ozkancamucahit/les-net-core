@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using PlatformService.Data;
 using PlatformService.DTOS;
 using PlatformService.Models;
+using PlatformService.SyncDataServices.Http;
 
 namespace PlatformService.Controllers
 {
@@ -13,12 +14,17 @@ namespace PlatformService.Controllers
     {
         private readonly IPlatformRepo repo;
         private readonly IMapper mapper;
+		private readonly ICommandDataClient commandDataClient;
 
-        public PlatformsController(IPlatformRepo repo, IMapper mapper)
+		public PlatformsController(
+			IPlatformRepo repo,
+			IMapper mapper,
+			ICommandDataClient commandDataClient)
         {
             this.repo = repo;
             this.mapper = mapper;
-        }
+			this.commandDataClient = commandDataClient;
+		}
 
         [HttpGet]
         public ActionResult<IEnumerable<PlatformReadDto>> GetPlatforms(){
@@ -43,7 +49,7 @@ namespace PlatformService.Controllers
         }
 
         [HttpPost]
-        public ActionResult<PlatformReadDto> CreatePlatform(PlatformCreateDto platformCreateDto){
+        public async Task<ActionResult<PlatformReadDto>> CreatePlatform(PlatformCreateDto platformCreateDto){
 
             Platform platformModel = mapper.Map<Platform>(platformCreateDto);
 
@@ -51,6 +57,15 @@ namespace PlatformService.Controllers
             repo.SaveChanges();
 
             var PlatformReadDto = mapper.Map<PlatformReadDto>(platformModel);
+
+            try
+            {
+                await commandDataClient.SendPlatformToCommand(PlatformReadDto);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(" ==> COULD NOT CREATE" + ex.Message);
+            }
 
             return CreatedAtRoute(nameof(GetPlatformById), new { Id = PlatformReadDto.Id}, PlatformReadDto);
 
