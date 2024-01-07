@@ -14,18 +14,22 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 
-if (builder.Environment.IsDevelopment())
-{
-	builder.Services.AddDbContext<AppDbContext>(
-	opt => opt.UseInMemoryDatabase("InMem")
-);
-}
-else if (builder.Environment.IsProduction())
-{
+// if (builder.Environment.IsDevelopment())
+// {
+//     Console.WriteLine(" ==> USING INMEM.");
+
+// 	builder.Services.AddDbContext<AppDbContext>(
+// 	opt => opt.UseInMemoryDatabase("InMem")
+// );
+// }
+// else if (builder.Environment.IsProduction())
+// {
+    Console.WriteLine(" ==> USING SQLSERVERDB.");
+
 	builder.Services.AddDbContext<AppDbContext>(
 		opt => opt.UseSqlServer(builder.Configuration.GetConnectionString("PlatformsConn"))
 	);
-}
+// }
 
 
 
@@ -38,14 +42,9 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    Console.WriteLine(" ==> USING INMEM.");
 
     app.UseSwagger();
     app.UseSwaggerUI();
-}
-else if(app.Environment.IsProduction())
-{
-    Console.WriteLine(" ==> USING SQLSERVERDB.");
 }
 
 //app.UseHttpsRedirection();
@@ -53,6 +52,6 @@ else if(app.Environment.IsProduction())
 app.UseAuthorization();
 
 app.MapControllers();
-PrepDb.PrepPopulation(app);
+PrepDb.PrepPopulation(app, app.Environment.IsProduction());
 
 app.Run();
