@@ -16,15 +16,17 @@ namespace PlatformService.Controllers
         private readonly IMapper mapper;
 		private readonly ICommandDataClient commandDataClient;
 
-		public PlatformsController(
-			IPlatformRepo repo,
-			IMapper mapper,
-			ICommandDataClient commandDataClient)
+        #region CTOR
+        public PlatformsController(
+                    IPlatformRepo repo,
+                    IMapper mapper,
+                    ICommandDataClient commandDataClient)
         {
             this.repo = repo;
             this.mapper = mapper;
-			this.commandDataClient = commandDataClient;
-		}
+            this.commandDataClient = commandDataClient;
+        }
+        #endregion
 
         [HttpGet]
         public ActionResult<IEnumerable<PlatformReadDto>> GetPlatforms(){
