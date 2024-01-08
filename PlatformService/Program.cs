@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using PlatformService.AsyncDataServices;
 using PlatformService.Data;
 using PlatformService.SyncDataServices.Http;
 
@@ -14,27 +15,28 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 
-// if (builder.Environment.IsDevelopment())
-// {
-//     Console.WriteLine(" ==> USING INMEM.");
+if (builder.Environment.IsDevelopment())
+{
+    Console.WriteLine(" ==> USING INMEM.");
 
-// 	builder.Services.AddDbContext<AppDbContext>(
-// 	opt => opt.UseInMemoryDatabase("InMem")
-// );
-// }
-// else if (builder.Environment.IsProduction())
-// {
+    builder.Services.AddDbContext<AppDbContext>(
+    opt => opt.UseInMemoryDatabase("InMem")
+);
+}
+else if (builder.Environment.IsProduction())
+{
     Console.WriteLine(" ==> USING SQLSERVERDB.");
 
 	builder.Services.AddDbContext<AppDbContext>(
 		opt => opt.UseSqlServer(builder.Configuration.GetConnectionString("PlatformsConn"))
 	);
-// }
+ }
 
 
 
 builder.Services.AddScoped<IPlatformRepo, PlatformRepo>();
 builder.Services.AddHttpClient<ICommandDataClient, HttpCommandDataClient>();
+builder.Services.AddSingleton<IMessageBusClient, MessageBusClient>();
 
 var app = builder.Build();
 
