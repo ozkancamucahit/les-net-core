@@ -27,7 +27,7 @@ namespace PlatformService.SyncDataServices.Http
 					mediaType: "application/json"
 				);
 
-			var response = await _httpClient.PostAsync(configuration["CommandService"], httpContent);
+			var response = await _httpClient.PostAsync(configuration["CommandService"] + "/TestConnection", httpContent);
 
 			if(response.IsSuccessStatusCode)
 			{
