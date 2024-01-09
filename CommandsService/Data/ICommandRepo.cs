@@ -10,6 +10,7 @@ namespace CommandsService.Data
 		IEnumerable<Platform> GetAllPlatforms();
 		void CreatePlatform(Platform platform);
 		bool PlatformExists(int platformID);
+		bool ExternalPlatformExists(int externalPlatformID);
 		#endregion
 
 		#region COMMANDS
