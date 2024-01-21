@@ -5,15 +5,19 @@
 using CommandsService.AsyncDataServices;
 using CommandsService.Data;
 using CommandsService.EventProcessing;
+using CommandsService.SyncDataServices.Grpc;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
-builder.Services.AddHostedService<MessageBusSubscriber>();
-builder.Services.AddDbContext<AppDbContext>( opt => opt.UseInMemoryDatabase("InMEM"));
-builder.Services.AddScoped<ICommandRepo, CommandRepo>();
-builder.Services.AddSingleton<IEventProcesor, EventProcesor>();
+
+builder.Services
+    .AddHostedService<MessageBusSubscriber>()
+    .AddDbContext<AppDbContext>(opt => opt.UseInMemoryDatabase("InMEM"))
+    .AddScoped<ICommandRepo, CommandRepo>()
+    .AddSingleton<IEventProcesor, EventProcesor>()
+    .AddScoped<IPlatformDataClient, PlatformDataClient>();
 
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
@@ -36,5 +40,7 @@ if (app.Environment.IsDevelopment())
 app.UseAuthorization();
 
 app.MapControllers();
+
+PrepDB.PrepPopulation(app);
 
 app.Run();
